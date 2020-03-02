@@ -21,13 +21,6 @@ import math
 
 from tkinter import filedialog
 
-#DVH calculation
-import matplotlib.path
-from six import iteritems
-
-
-# In[18]:
-
 
 #select the directoy and import the MAA and Y90 RTdose files
 
@@ -47,22 +40,12 @@ ScaleY90=DsY90.DoseGridScaling
 
 #plot the same slice for the MAA and Y90
 f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-ax1.imshow(imgMAA[45,:,:],cmap='binary') #affiche l'image correspondant à la coupe 26
+ax1.imshow(imgMAA[45,:,:],cmap='binary') 
 ax1.set_title('MAA Dose')
-ax2.imshow(imgY90[45,:,:],cmap='binary') #affiche l'image correspondant à la coupe 26
+ax2.imshow(imgY90[45,:,:],cmap='binary') 
 ax2.set_title('Y90 Dose')
 
-#Verify if the two images have the same dimensions 
-#print('MAA:',imgMAA.shape, ScaleMAA)
-#print('Y90:', imgY90.shape, ScaleY90)
-#print('MAA max dose Gy', imgMAA.max()*ScaleMAA)
-#print('Y90 max dose Gy', imgY90.max()*ScaleY90)
-
-
-# In[19]:
-
-
-#open the directory of the masks and print the number of files to verify if the nr of lesions is correct
+#open the directory of the masks and print the number of files to verify if the number of lesions is correct
 dirMask = filedialog.askdirectory(title='Please select dir of the masks')
 nr_masks = sum(len(files) for _, _, files in os.walk(dirMask))
 print("nr files:", nr_masks)
@@ -78,10 +61,6 @@ for i in range(nr_masks):
     masks.append(pydicom.read_file(os.path.normpath(os.path.join(dirMask,l[i]))))
 print('shape:',masks[0].pixel_array.shape)
 
-
-# In[20]:
-
-
 class MaskResults:
    
     def __init__(self, imgMAA, ScaleMAA, imgY90, ScaleY90, mask, mask_name): #creating a class using as arguments all the paramaters requiered to calculate the QVH
@@ -93,7 +72,7 @@ class MaskResults:
         for i in range (1,len(self.Qarraysorted)):       # %volume of a voxel that is ponderated by the WF
             self.y.append(self.y[i-1]-self.Qarraysorted[i][1]/self.sumWF*100)
     
-#to extand the lenght of each row based on the largest lenth of data # necessary to be able to export all the data in the same csv file
+#to extand the lenght of each row based on the largest lenth of data, necessary to be able to export all the data in the same csv file
     def extend_xy(self, length):  
         x_len = len(self.x)
         num_empty_needed = length - x_len
@@ -171,12 +150,7 @@ class MaskResults:
 #create a list with the outputs of the class MaskResults, for each mask     
 res_list = [MaskResults(imgMAA, ScaleMAA, imgY90, ScaleY90, masks[i], mask_names[i]) for i in range(nr_masks)] 
 
-
-# In[23]:
-
-
-
-#plot QVH for each mask and save it in the pacient directory
+#plot QVH for each mask and save it in the patient directory
 fig = plt.figure(figsize = (20, 10))
 print(nr_masks)
 for m_res_index in range(nr_masks):
@@ -195,7 +169,7 @@ fig.savefig(FigFile)
 plt.show()
 
 
-#create a csv file that includes the dose pondereted and volume for each mask
+#create a csv file that includes the qF pondereted and volume for each mask
 Xs = [res.x for res in res_list]
 Ys = [res.y for res in res_list]
 max_length = max([len(x) for x in Xs])
@@ -208,30 +182,7 @@ for res in res_list:
 Xs = [res.x for res in res_list]
 Ys = [res.y for res in res_list]
 
-#y=ponderated volume
-#x= sorted dose division
 
-# delim = ";"
-# colnames = ["%s%s%s" % ("Dose_"+mask_names[i], delim,
-#                           "Volume_"+mask_names[i])
-#            for i in range(nr_masks)]
-
-# with open(os.path.join(dirname, "Patient"+'.csv'), "w+") as csv_file:
-#     csv_file.write(delim.join(colnames)+"\n")
-    
-#     for i in range(max_length):
-#         for mask_idx in range(nr_masks):
-#             csv_file.write(str(res_list[mask_idx].x[i]) + delim + str(res_list[mask_idx].y[i]) + delim)
-#         csv_file.write("\n")
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 
